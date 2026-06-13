@@ -1,0 +1,143 @@
+Vì sao lại có Weaverse?
+Weaverse cho phép non-developer (marketing, content team) tự chỉnh UI mà không cần đụng code. Ví dụ như việc kéo thả Sections trong theme customizer.
+
+Shopify Theme (Dawn)         	Hydrogen thuần
+─────────────         	 ────────────────
+✅ Non-dev tự chỉnh được     	❌ Phải biết code
+✅ Kéo thả sections          		❌ Không có visual editor
+✅ Deploy dễ                 		✅ Performance tốt hơn
+✅ Nhanh setup               		✅ Flexible hơn
+❌ Performance kém hơn       	✅ Headless, custom hoàn toàn
+❌ Khó customize sâu
+
+Hydrogen + Weaverse giúp khắc phục
+───────────────────
+✅ Performance của Hydrogen
+✅ Kéo thả như Dawn theme
+✅ Dev tạo components
+✅ Non-dev tự chỉnh content
+✅ Không cần deploy mỗi lần đổi banner
+
+Hướng dẫn sử dụng:
+Bc1: Vào admin shopify, cài Weaverse Hydrogen trên Shopify App Store
+Bc2: Start new project, chọn theme
+Bc3: Setup với CLI
+lúc tạo project sẽ có 1 đoạn giúp bạn chạy local:
+npx @weaverse/cli@latest create --template=pilot --project-id=v3gf5xxth6j1u3qr2fa4im1x --project-name=my-hydrogen-storefront 
+
+Bc4: Connect với Store Data của Acc
+Cài app Hydrogen, Headless (Headless với freetrial) trên Shopify App Store.
+Pull store env:
+# Make sure you're in your theme folder
+cd my-hydrogen-storefront
+
+# Pull your store's environment variables
+npx shopify hydrogen env pull
+-> npm run dev
+
+Bc5: Cập nhật biến môi trường:
+# Edit your .env file with:
+PUBLIC_STORE_DOMAIN=your-store.myshopify.com
+PUBLIC_STOREFRONT_API_TOKEN=your_generated_token
+-> npm run dev
+
+Bc6: back về Weaverse Studio và connect lại
+
+PROJECT STRUCTURE
+🌳 my-theme
+├── 📁 app/
+│   ├── 📁 components/     # Reusable UI components
+│   ├── 📁 graphql/       # GraphQL queries and fragments
+│   ├── 📁 hooks/         # Custom React hooks
+│   ├── 📁 routes/        # Application routes
+│   ├── 📁 sections/      # Theme sections
+│   ├── 📁 styles/        # Global styles and Tailwind
+│   ├── 📁 types/         # TypeScript definitions
+│   ├── 📁 utils/         # Helper functions
+│   ├── 📁 weaverse/      # Weaverse configuration
+│   ├── 📄 entry.client.tsx
+│   ├── 📄 entry.server.tsx
+│   └── 📄 root.tsx
+├── 📁 public/            # Static assets
+├── 📄 server.ts          # Server configuration
+├── 📄 vite.config.ts     # Build configuration
+├── 📄 tailwind.config.js # Tailwind settings
+└── 📄 .env              # Environment variables
+
+Để ý components và sections (sections để sửa theme)
+
+Cấu trúc của 1 Weaverse Component
+1. Component function (React bình thường)
+   └── HeroImage() → render UI
+
+2. Schema (phần đặc biệt của Weaverse)
+   └── export const schema = createSchema({...})
+       ├── type: "hero-image"     ← tên định danh
+       ├── title: "Hero image"    ← tên hiện trong Studio
+       ├── settings: [...]        ← các settings trong panel phải
+       ├── childTypes: [...]      ← components con có thể thêm vào
+       └── presets: {...}         ← giá trị mặc định
+Schema là nguồn gốc bên phải trong studio, mô tả cấu trúc của component, ví dụ:
+1 banner hero có:
+- heading (tiêu đề/slogan)
+- subheading (mô tả ngắn)
+- backgroundImage (ảnh nền)
+- button (CTA button)
+  childTypes: ["subheading", "heading", "paragraph", "button"],
+  presets: {
+    height: "large",
+    contentPosition: "center center",
+    backgroundImage: IMAGES_PLACEHOLDERS.banner_1,
+    backgroundFit: "cover",
+    enableOverlay: true,
+    overlayOpacity: 40,
+    children: [
+      {
+        type: "subheading",
+        content: "Subheading",
+        color: "#ffffff",
+      },
+      {
+        type: "heading",
+        content: "Hero image with text overlay",
+        as: "h2",
+        color: "#ffffff",
+        size: "default",
+      },
+      {
+        type: "paragraph",
+        content:
+          "Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.",
+        color: "#ffffff",
+      },
+    ],
+  },
+
+VD2:
+settings: [
+  {
+    type: "text",        ← loại input
+    name: "heading",     ← tên biến
+    label: "Heading",    ← label hiện trong Studio
+  }
+]
+
+Cách tạo 1 section:
+Bc1: tạo folder trong app/sections, tạo file index trong thư mục ấy
+Bc2: Code thư mục ấy
+Bc3: Đăng ký trong app/weaverse/component.ts
+import * as BannerHero from "~/sections/banner-hero"; 
+Thêm
+export const components: HydrogenComponent[] = [
+  ...
+  BannerHero,  // ← thêm vào đây
+  ...
+]
+
+Weaverse Comp:
+1. Tạo file trong app/sections/
+2. Copy structure từ component có sẵn
+3. Đổi type + title trong schema
+4. Đăng ký vào app/weaverse/components.ts
+5. Kéo thả trong Studio!
+
