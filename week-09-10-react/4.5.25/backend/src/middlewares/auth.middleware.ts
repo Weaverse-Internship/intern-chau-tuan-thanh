@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret-key-doi-sau'
+const JWT_SECRET = process.env.JWT_SECRET
+if (!JWT_SECRET?.trim()) {
+    throw new Error('JWT_SECRET must be configured')
+}
 
 
 declare global {

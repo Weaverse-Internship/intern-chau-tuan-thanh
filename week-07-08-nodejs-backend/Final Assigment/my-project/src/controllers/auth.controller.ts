@@ -3,7 +3,10 @@ import bcrypt from 'bcrypt'
 import jwt from 'jsonwebtoken'
 import { prisma } from '../lib/prisma.js'
 
-const JWT_SECRET = process.env.JWT_SECRET || 'secret-key-doi-sau'
+const JWT_SECRET = process.env.JWT_SECRET
+if (!JWT_SECRET?.trim()) {
+    throw new Error('JWT_SECRET must be configured')
+}
 
 //POST api/auth/REGISTER
 export const register = async (req: Request, res: Response) => {
